@@ -6,9 +6,5 @@ interface Props {
 }
 
 export const Providers: React.FC<Props> = ({ children }) => {
-  return (
-    <>
-      <Provider>{children}</Provider>
-    </>
-  );
+  return <Provider>{children}</Provider>;
 };

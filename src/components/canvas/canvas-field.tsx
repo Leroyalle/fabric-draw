@@ -1,7 +1,7 @@
+import { CanvasToolbar } from './canvas-toolbar';
+import { CanvasSettings } from './canvas-settings';
 import React, { useEffect, useRef, useState } from 'react';
 import { Canvas } from 'fabric';
-import clsx from 'clsx';
-import { CanvasToolbar } from './canvas-toolbar';
 
 interface Props {
   className?: string;
@@ -14,7 +14,7 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
   useEffect(() => {
     if (canvasRef.current) {
       const initCanvas = new Canvas(canvasRef.current, {
-        width: 1000,
+        width: 500,
         height: 500,
       });
 
@@ -29,10 +29,10 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
   }, [canvasRef]);
 
   return (
-    <div
-      className={clsx('flex flex-col items-center justify-center min-h-screen h-full', className)}>
+    <div className={className}>
+      <CanvasToolbar canvas={canvas} canvasRef={canvasRef} />
       <canvas id="canvas" ref={canvasRef} />
-      <CanvasToolbar canvas={canvas} />
+      <CanvasSettings canvas={canvas} />
     </div>
   );
 };

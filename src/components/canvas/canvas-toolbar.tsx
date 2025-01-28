@@ -2,14 +2,16 @@ import { Button } from '@chakra-ui/react';
 import clsx from 'clsx';
 import { Canvas, Circle, Rect } from 'fabric';
 import { CircleIcon, SquareIcon } from 'lucide-react';
-import React from 'react';
+import React, { RefObject } from 'react';
+import { CanvasVideo } from './canvas-video';
 
 interface Props {
   canvas: Canvas | null;
+  canvasRef: RefObject<HTMLCanvasElement>;
   className?: string;
 }
 
-export const CanvasToolbar: React.FC<Props> = ({ canvas, className }) => {
+export const CanvasToolbar: React.FC<Props> = ({ canvas, canvasRef, className }) => {
   const addRectangle = () => {
     if (canvas) {
       const rect = new Rect({
@@ -36,13 +38,14 @@ export const CanvasToolbar: React.FC<Props> = ({ canvas, className }) => {
   };
 
   return (
-    <div className={clsx('flex items-center justify-center', className)}>
-      <Button colorScheme="teal" variant="outline" onClick={addRectangle}>
+    <div className={clsx('fixed top-1/2 left-4 -translate-y-1/2 flex flex-col', className)}>
+      <Button colorScheme="teal" variant="subtle" onClick={addRectangle}>
         <SquareIcon />
       </Button>
       <Button colorScheme="teal" variant="outline" onClick={addCircle}>
         <CircleIcon />
       </Button>
+      <CanvasVideo canvas={canvas} canvasRef={canvasRef} />
     </div>
   );
 };
