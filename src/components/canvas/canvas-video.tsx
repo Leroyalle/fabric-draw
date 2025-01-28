@@ -2,15 +2,14 @@ import { Canvas } from 'fabric';
 import React, { ChangeEvent, useRef, useState } from 'react';
 import { Image as FabricImage } from 'fabric';
 import { Button, Input } from '@chakra-ui/react';
-import { PauseIcon, PlayIcon, StopCircle, VideoIcon } from 'lucide-react';
+import { StopCircle, VideoIcon } from 'lucide-react';
 
 interface Props {
   canvas: Canvas | null;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  className?: string;
 }
 
-export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef, className }) => {
+export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef }) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [fabricVideo, setFabricVideo] = useState<FabricImage | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -18,10 +17,12 @@ export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef, className }) =
   const [uploadMessage, setUploadMessage] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [loadPercentage, setLoadPercentage] = useState(0);
-  const [recordingChunks, setRecordingChunks] = useState([]);
+  const [recordingChunks, setRecordingChunks] = useState<Blob[]>([]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recordingIntervalRef = useRef<number | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const handleVideoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,15 +91,19 @@ export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef, className }) =
   };
 
   const handlePlayPauseVideo = () => {
-    if (videoRef.current) {
+    if (videoRef.current && fabricVideo) {
       if (videoRef.current.paused) {
-        videoRef.current.play();
-        videoRef.current.addEventListener('pause', () => {
-          if (videoRef.current) {
-            fabricVideo?.setElement(videoRef.current);
-            canvas?.renderAll();
+        const renderFrame = () => {
+          if (!videoRef.current?.paused) {
+            if (videoRef.current) fabricVideo.setElement(videoRef.current);
+            canvas?.requestRenderAll();
+            requestAnimationFrame(renderFrame);
           }
-        });
+        };
+
+        videoRef.current.play();
+        requestAnimationFrame(renderFrame);
+        setIsPlaying(true);
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -118,6 +123,61 @@ export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef, className }) =
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
+  const handleStartRecording = () => {
+    if (canvasRef.current) {
+      const stream = canvasRef.current.captureStream();
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'video/webm; codecs=vp9',
+      });
+      mediaRecorderRef.current.ondataavailable = handleDataAvailable;
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+
+      canvas?.getObjects().forEach((object) => {
+        object.hasControls = false;
+        object.selectable = true;
+      });
+      canvas?.renderAll();
+      setRecordingTime(0);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime((prevTime) => prevTime + 1);
+      }, 1000);
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      canvas?.getObjects().forEach((object) => {
+        object.hasControls = true;
+      });
+      canvas?.renderAll();
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  const handleDataAvailable = (e: BlobEvent) => {
+    if (e.data.size > 0) {
+      setRecordingChunks((prevChunks) => [...prevChunks, e.data]);
+    }
+  };
+
+  const handleExportVideo = () => {
+    const blob = new Blob(recordingChunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'video.webm';
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    setRecordingChunks([]);
+  };
+
   return (
     <>
       <Input
@@ -132,9 +192,18 @@ export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef, className }) =
       </Button>
       {videoSrc && (
         <div className="flex flex-col">
-          <Button onClick={handlePlayPauseVideo}>{isPlaying ? <PauseIcon /> : <PlayIcon />}</Button>
+          <Button onClick={handlePlayPauseVideo}>{isPlaying ? 'Пауза' : 'Воспроизвести'}</Button>
           <Button onClick={handlePauseVideo}>
             <StopCircle />
+          </Button>
+          <div className="bg-red-500 w-4 h-4" style={{ width: `${loadPercentage}` }} />
+          {uploadMessage && <p>{uploadMessage}</p>}
+          <Button onClick={isRecording ? handleStopRecording : handleStartRecording}>
+            {isRecording ? <StopCircle /> : <VideoIcon />} {isRecording ? 'Остановить' : 'Запись'}{' '}
+            {recordingTime} сек
+          </Button>
+          <Button onClick={handleExportVideo} disabled={!recordingChunks.length}>
+            Export Video
           </Button>
         </div>
       )}
