@@ -1,7 +1,9 @@
 import { CanvasToolbar } from './canvas-toolbar';
-import { CanvasSettings } from './canvas-settings';
+import { CanvasObjectSettings } from './canvas-object-settings';
 import React, { useEffect, useRef, useState } from 'react';
-import { Canvas } from 'fabric';
+import { Canvas, Line } from 'fabric';
+import { CanvasSettings } from './canvas-settings';
+import { clearGuidelines, handleObjectMoving } from './lib';
 
 interface Props {
   className?: string;
@@ -10,6 +12,7 @@ interface Props {
 export const CanvasField: React.FC<Props> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
+  const [guidelines, setGuidelines] = useState<Line[]>([]);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -22,6 +25,14 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
       initCanvas.renderAll();
       setCanvas(initCanvas);
 
+      initCanvas.on('object:moving', function (e) {
+        handleObjectMoving(initCanvas, e.target, guidelines, setGuidelines);
+      });
+
+      initCanvas.on('object:modified', function () {
+        clearGuidelines(initCanvas);
+      });
+
       return () => {
         initCanvas.dispose();
       };
@@ -32,6 +43,7 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
     <div className={className}>
       <CanvasToolbar canvas={canvas} canvasRef={canvasRef} />
       <canvas id="canvas" ref={canvasRef} />
+      <CanvasObjectSettings canvas={canvas} />
       <CanvasSettings canvas={canvas} />
     </div>
   );
