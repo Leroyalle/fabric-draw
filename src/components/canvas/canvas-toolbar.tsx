@@ -4,14 +4,21 @@ import { Canvas, Circle, Rect } from 'fabric';
 import { CircleIcon, SquareIcon } from 'lucide-react';
 import React, { RefObject } from 'react';
 import { CanvasVideo } from './canvas-video';
+import { CanvasCropping } from './canvas-cropping';
 
 interface Props {
   canvas: Canvas | null;
   canvasRef: RefObject<HTMLCanvasElement>;
+  onFramesUpdate: () => void;
   className?: string;
 }
 
-export const CanvasToolbar: React.FC<Props> = ({ canvas, canvasRef, className }) => {
+export const CanvasToolbar: React.FC<Props> = ({
+  canvas,
+  canvasRef,
+  onFramesUpdate,
+  className,
+}) => {
   const addRectangle = () => {
     if (canvas) {
       const rect = new Rect({
@@ -38,7 +45,12 @@ export const CanvasToolbar: React.FC<Props> = ({ canvas, canvasRef, className })
   };
 
   return (
-    <div className={clsx('fixed top-1/2 left-4 -translate-y-1/2 flex flex-col', className)}>
+    <div
+      className={clsx(
+        'fixed top-1/2 left-4 -translate-y-1/2 flex flex-col bg-gray-800 text-white',
+        className,
+      )}>
+      <CanvasCropping canvas={canvas} onFramesUpdate={onFramesUpdate} />
       <Button colorScheme="teal" variant="subtle" onClick={addRectangle}>
         <SquareIcon />
       </Button>

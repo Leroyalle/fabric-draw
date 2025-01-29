@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line } from 'fabric';
 import { CanvasSettings } from './canvas-settings';
 import { clearGuidelines, handleObjectMoving } from './lib';
-import { CanvasCropping } from './canvas-cropping';
+import { LayersList } from '../layers/layers-list';
+import { CanvasCroppingSettings } from './canvas-cropping-settings';
 
 interface Props {
   className?: string;
@@ -47,11 +48,14 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
 
   return (
     <div className={className}>
-      <CanvasCropping canvas={canvas} onFramesUpdate={handleFramesUpdate} />
-      <CanvasToolbar canvas={canvas} canvasRef={canvasRef} />
+      <CanvasToolbar canvas={canvas} canvasRef={canvasRef} onFramesUpdate={handleFramesUpdate} />
       <canvas id="canvas" ref={canvasRef} />
-      <CanvasObjectSettings canvas={canvas} />
-      <CanvasSettings canvas={canvas} refreshKey={refreshKey} />
+      <div className="flex flex-col gap-y-3 fixed right-4 top-1/2 -translate-y-1/2 max-w-[200px]">
+        <CanvasObjectSettings canvas={canvas} />
+        <CanvasSettings canvas={canvas} />
+        <CanvasCroppingSettings canvas={canvas} refreshKey={refreshKey} />
+        <LayersList canvas={canvas} />
+      </div>
     </div>
   );
 };

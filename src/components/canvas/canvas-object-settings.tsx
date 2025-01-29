@@ -105,25 +105,40 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
     }
   };
 
+  if (!selectedObject) {
+    return null;
+  }
+
   return (
-    <div
-      className={clsx(
-        'fixed right-4 top-1/2 -translate-y-1/2 max-w-[200px] bg-gray-100 p-2 rounded-xl',
-        className,
-      )}>
-      {selectedObject && <h2 className="font-semibold">Object settings</h2>}
-      {selectedObject && selectedObject.type === 'rect' && (
+    <div className={clsx('bg-gray-800 text-white p-2 rounded-xl flex flex-col gap-y-2', className)}>
+      <h2 className="font-semibold">Object settings</h2>
+      {selectedObject.type === 'rect' && (
         <>
-          <Input type="number" value={width} onChange={handleWidthChange} />
-          <Input type="number" value={height} onChange={handleHeightChange} />
+          <Input
+            className="bg-white text-black p-2"
+            type="number"
+            value={width}
+            onChange={handleWidthChange}
+          />
+          <Input
+            className="bg-white text-black p-2"
+            type="number"
+            value={height}
+            onChange={handleHeightChange}
+          />
         </>
       )}
-      {selectedObject && selectedObject.type === 'circle' && (
+      {selectedObject.type === 'circle' && (
         <>
-          <Input type="number" value={diameter} onChange={handleDiameterChange} />
+          <Input
+            className="bg-white text-black p-2"
+            type="number"
+            value={diameter}
+            onChange={handleDiameterChange}
+          />
         </>
       )}
-      {selectedObject && <Input value={color} type="color" onChange={handleColorChange} />}
+      <Input value={color} type="color" onChange={handleColorChange} />
     </div>
   );
 };

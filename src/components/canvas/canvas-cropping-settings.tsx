@@ -13,10 +13,9 @@ import { Button } from '@chakra-ui/react';
 interface Props {
   canvas: Canvas | null;
   refreshKey: number;
-  className?: string;
 }
 
-export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey, className }) => {
+export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey }) => {
   const [frames, setFrames] = useState<FabricObject[]>([]);
   const [selectedFrame, setSelectedFrame] = useState<FabricObject>();
 
@@ -86,9 +85,9 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey, cl
   };
 
   return (
-    <div className={className}>
+    <div className="p-2 rounded-xl bg-gray-800 text-white">
       <Select value={selectedFrame?.get('name') || ''} onValueChange={handleFrameSelect}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] text-black">
           <SelectValue placeholder="Select a frame" />
         </SelectTrigger>
         <SelectContent>
@@ -99,7 +98,7 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey, cl
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button colorScheme="teal" onClick={exportFrameAsPNG}>
+      <Button disabled={!selectedFrame} colorScheme="teal" onClick={exportFrameAsPNG}>
         Export frame
       </Button>
     </div>
