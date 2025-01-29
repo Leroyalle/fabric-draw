@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line } from 'fabric';
 import { CanvasSettings } from './canvas-settings';
 import { clearGuidelines, handleObjectMoving } from './lib';
+import { CanvasCropping } from './canvas-cropping';
 
 interface Props {
   className?: string;
@@ -13,6 +14,7 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [guidelines, setGuidelines] = useState<Line[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -39,12 +41,17 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
     }
   }, [canvasRef]);
 
+  const handleFramesUpdate = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+
   return (
     <div className={className}>
+      <CanvasCropping canvas={canvas} onFramesUpdate={handleFramesUpdate} />
       <CanvasToolbar canvas={canvas} canvasRef={canvasRef} />
       <canvas id="canvas" ref={canvasRef} />
       <CanvasObjectSettings canvas={canvas} />
-      <CanvasSettings canvas={canvas} />
+      <CanvasSettings canvas={canvas} refreshKey={refreshKey} />
     </div>
   );
 };

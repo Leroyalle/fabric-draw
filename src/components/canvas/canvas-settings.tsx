@@ -2,13 +2,15 @@ import { Input } from '@chakra-ui/react';
 import clsx from 'clsx';
 import { Canvas } from 'fabric';
 import React, { useEffect, useState } from 'react';
+import { CanvasCroppingSettings } from './canvas-cropping-settings';
 
 interface Props {
   canvas: Canvas | null;
+  refreshKey: number;
   className?: string;
 }
 
-export const CanvasSettings: React.FC<Props> = ({ canvas, className }) => {
+export const CanvasSettings: React.FC<Props> = ({ canvas, refreshKey, className }) => {
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(500);
 
@@ -41,6 +43,7 @@ export const CanvasSettings: React.FC<Props> = ({ canvas, className }) => {
       <h2 className="font-semibold">Canvas settings</h2>
       <Input type="number" value={width} onChange={handleChangeWidth} />
       <Input type="number" value={height} onChange={handleChangeHeight} />
+      <CanvasCroppingSettings canvas={canvas} refreshKey={refreshKey} />
     </div>
   );
 };

@@ -21,7 +21,7 @@ export const CanvasVideo: React.FC<Props> = ({ canvas, canvasRef }) => {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recordingIntervalRef = useRef<number | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const handleVideoUpload = (e: ChangeEvent<HTMLInputElement>) => {

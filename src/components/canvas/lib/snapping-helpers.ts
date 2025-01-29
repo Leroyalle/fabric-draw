@@ -53,6 +53,7 @@ export const handleObjectMoving = (
     }
     snapped = true;
   }
+
   if (Math.abs(bottom - canvasHeight) < snappingDistance) {
     obj.set({ top: canvasHeight - obj.height * obj.scaleY });
     if (!guidelineExists(canvas, 'horizontal-bottom')) {
@@ -82,6 +83,7 @@ export const handleObjectMoving = (
     }
     snapped = true;
   }
+
   if (!snapped) {
     clearGuidelines(canvas);
   } else {
@@ -101,6 +103,7 @@ export const createVerticalGuideline = (canvas: Canvas, x: number, id: string) =
     opacity: 0.8,
   });
 };
+
 export const createHorizontalGuideline = (canvas: Canvas, y: number, id: string) => {
   return new Line([0, y, canvas.width, y], {
     id,
@@ -125,6 +128,7 @@ export const clearGuidelines = (canvas: Canvas) => {
   });
   canvas.renderAll();
 };
+
 const guidelineExists = (canvas: Canvas, id: string) => {
   const objects = canvas.getObjects('line');
   return objects.some((obj) => obj.get('id') === id);
