@@ -1,7 +1,8 @@
 import { Canvas } from 'fabric';
 import React, { ChangeEvent, useRef, useState } from 'react';
 import { Image as FabricImage } from 'fabric';
-import { Button, Input } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
+import { Input } from '../ui/input';
 import { StopCircle, VideoIcon } from 'lucide-react';
 
 interface Props {

@@ -45,7 +45,11 @@ export const CanvasToolbar: React.FC<Props> = ({
   };
 
   return (
-    <div className={clsx('flex flex-col bg-gray-800 text-white', className)}>
+    <div
+      className={clsx(
+        'flex flex-col items-center bg-gray-800 text-white rounded-xl p-[1vh] h-full w-full',
+        className,
+      )}>
       <CanvasCropping canvas={canvas} onFramesUpdate={onFramesUpdate} />
       <Button colorScheme="teal" variant="subtle" onClick={addRectangle}>
         <SquareIcon />

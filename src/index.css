@@ -79,8 +79,8 @@ button:focus-visible {
   transform: translate(-50%, -50%) !important;
 }
 
-.body {
-  position: relative;
+body {
+  background-color: #dcdcdc;
 }
 
 @layer base {

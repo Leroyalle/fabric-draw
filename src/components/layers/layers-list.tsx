@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import clsx from 'clsx';
 import { Canvas, FabricObject, TEvent, TPointerEvent } from 'fabric';
-import { ArrowBigDown, ArrowBigUp, Eye, EyeOff } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, Eye, EyeOff, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
@@ -12,17 +12,22 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
   const [layers, setLayers] = useState<Pick<FabricObject, 'id' | 'zIndex' | 'type'>[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<FabricObject | null>(null);
 
-  const hideSelectLayer = () => {
-    if (!selectedLayer) {
-      return undefined;
+  const handleDeleteLayer = () => {
+    if (!selectedLayer) return undefined;
+    if (canvas) {
+      const findObject = canvas.getObjects().find((obj) => obj.id === selectedLayer.id);
+      if (!findObject) return undefined;
+      canvas.remove(findObject);
+      canvas.renderAll();
+      updateLayers();
     }
+  };
 
-    const object = canvas?.getObjects().find((obj) => obj.id === selectedLayer.id);
-    if (!object) return undefined;
+  const hideSelectLayer = () => {
+    if (!selectedLayer) return undefined;
 
     if (canvas) {
-      const objects = canvas.getObjects();
-      const findObject = objects.find((obj) => obj.id === selectedLayer.id);
+      const findObject = canvas.getObjects().find((obj) => obj.id === selectedLayer.id);
       if (!findObject) return undefined;
       if (findObject.get('opacity') === 0) {
         findObject.set({ opacity: 1 });
@@ -149,21 +154,27 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
   }
 
   return (
-    <div className="bg-gray-800 text-white p-2 rounded-xl">
+    <div className="flex flex-col gap-y-3 bg-gray-800 text-white p-2 rounded-xl">
       <h2 className="font-semibold">Layers</h2>
-      <Button
-        onClick={() => moveSelectLayer('up')}
-        disabled={!selectedLayer || layers[0].id === selectedLayer.id}>
-        <ArrowBigUp />
-      </Button>
-      <Button
-        onClick={() => moveSelectLayer('down')}
-        disabled={!selectedLayer || layers[layers.length - 1].id === selectedLayer.id}>
-        <ArrowBigDown />
-      </Button>
-      <Button onClick={() => hideSelectLayer()}>
-        {selectedLayer?.opacity === 0 ? <Eye /> : <EyeOff />}
-      </Button>
+      <div>
+        {' '}
+        <Button
+          onClick={() => moveSelectLayer('up')}
+          disabled={!selectedLayer || layers[0].id === selectedLayer.id}>
+          <ArrowBigUp />
+        </Button>
+        <Button
+          onClick={() => moveSelectLayer('down')}
+          disabled={!selectedLayer || layers[layers.length - 1].id === selectedLayer.id}>
+          <ArrowBigDown />
+        </Button>
+        <Button disabled={!selectedLayer} onClick={() => hideSelectLayer()}>
+          {selectedLayer?.opacity === 0 ? <Eye /> : <EyeOff />}
+        </Button>
+        <Button disabled={!selectedLayer} onClick={() => handleDeleteLayer()}>
+          <Trash />
+        </Button>
+      </div>
       <ul>
         {layers.map((layer) => (
           <li key={layer.id}>

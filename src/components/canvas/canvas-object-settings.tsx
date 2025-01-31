@@ -1,7 +1,8 @@
-import { Input } from '@chakra-ui/react';
+import { Input } from '../ui/input';
 import clsx from 'clsx';
 import { Canvas, FabricObject, Circle, Rect } from 'fabric';
 import React, { useEffect, useState } from 'react';
+
 interface Props {
   canvas: Canvas | null;
   className?: string;
@@ -42,7 +43,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
       return null;
     }
     setSelectedObject(object);
-    setOpacity(object.opacity || 1);
+    setOpacity(object.opacity);
 
     if (object.type === 'rect') {
       const rect = object as Rect;
