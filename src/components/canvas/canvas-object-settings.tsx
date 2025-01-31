@@ -13,6 +13,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   const [height, setHeight] = useState(0);
   const [diameter, setDiameter] = useState(0);
   const [color, setColor] = useState<string>('');
+  const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
     if (canvas) {
@@ -41,6 +42,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
       return null;
     }
     setSelectedObject(object);
+    setOpacity(object.opacity || 1);
 
     if (object.type === 'rect') {
       const rect = object as Rect;
@@ -61,6 +63,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
     setHeight(0);
     setDiameter(0);
     setColor('');
+    setOpacity(1);
   };
 
   const handleWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,8 +79,8 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   const handleHeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.replace(/,/g, '');
     const intValue = parseInt(value, 10);
-
     setHeight(intValue);
+
     if (selectedObject?.type === 'rect' && intValue >= 0) {
       selectedObject.set({ height: intValue / selectedObject.scaleY });
       canvas?.requestRenderAll();
@@ -86,7 +89,6 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   const handleDiameterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.replace(/,/g, '');
     const intValue = parseInt(value, 10);
-
     setDiameter(intValue);
 
     if (selectedObject?.type === 'circle' && intValue >= 0) {
@@ -96,11 +98,20 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   };
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-
     setColor(value);
 
     if (selectedObject) {
       selectedObject.set({ fill: value });
+      canvas?.requestRenderAll();
+    }
+  };
+  const handleOpacityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const intValue = Number(value);
+    setOpacity(intValue);
+
+    if (selectedObject) {
+      selectedObject.set({ opacity: value });
       canvas?.requestRenderAll();
     }
   };
@@ -133,12 +144,20 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
           <Input
             className="bg-white text-black p-2"
             type="number"
+            placeholder="#FFFFFF"
             value={diameter}
             onChange={handleDiameterChange}
           />
         </>
       )}
       <Input value={color} type="color" onChange={handleColorChange} />
+      <Input
+        className="bg-white text-black p-2"
+        type="number"
+        placeholder="1"
+        value={opacity}
+        onChange={handleOpacityChange}
+      />
     </div>
   );
 };

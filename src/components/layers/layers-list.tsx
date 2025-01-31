@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import clsx from 'clsx';
 import { Canvas, FabricObject, TEvent, TPointerEvent } from 'fabric';
-import { ArrowBigDown, ArrowBigUp } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, Eye, EyeOff } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
@@ -11,6 +11,28 @@ interface Props {
 export const LayersList: React.FC<Props> = ({ canvas }) => {
   const [layers, setLayers] = useState<Pick<FabricObject, 'id' | 'zIndex' | 'type'>[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<FabricObject | null>(null);
+
+  const hideSelectLayer = () => {
+    if (!selectedLayer) {
+      return undefined;
+    }
+
+    const object = canvas?.getObjects().find((obj) => obj.id === selectedLayer.id);
+    if (!object) return undefined;
+
+    if (canvas) {
+      const objects = canvas.getObjects();
+      const findObject = objects.find((obj) => obj.id === selectedLayer.id);
+      if (!findObject) return undefined;
+      if (findObject.get('opacity') === 0) {
+        findObject.set({ opacity: 1 });
+      } else {
+        findObject.set({ opacity: 0 });
+      }
+      canvas.renderAll();
+      updateLayers();
+    }
+  };
 
   const addIdToObject = (object: FabricObject) => {
     if (!object.id) {
@@ -71,10 +93,10 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
           id: obj.id,
           zIndex: obj.zIndex,
           type: obj.type,
+          opacity: obj.opacity,
         }));
 
       setLayers([...objects].reverse());
-      console.log(objects);
     }
   };
 
@@ -101,15 +123,12 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
         }
 
         const bgColor = canvas.backgroundColor;
-
         canvas.clear();
-
         objects.forEach((obj) => canvas.add(obj));
-
         canvas.backgroundColor = bgColor;
-
         canvas.renderAll();
-        canvas.setActiveObject(object);
+        setSelectedLayer(object);
+        canvas.setActiveObject(selectedLayer);
         updateLayers();
       }
     }
@@ -132,11 +151,18 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
   return (
     <div className="bg-gray-800 text-white p-2 rounded-xl">
       <h2 className="font-semibold">Layers</h2>
-      <Button onClick={() => moveSelectLayer('up')}>
+      <Button
+        onClick={() => moveSelectLayer('up')}
+        disabled={!selectedLayer || layers[0].id === selectedLayer.id}>
         <ArrowBigUp />
       </Button>
-      <Button onClick={() => moveSelectLayer('down')}>
+      <Button
+        onClick={() => moveSelectLayer('down')}
+        disabled={!selectedLayer || layers[layers.length - 1].id === selectedLayer.id}>
         <ArrowBigDown />
+      </Button>
+      <Button onClick={() => hideSelectLayer()}>
+        {selectedLayer?.opacity === 0 ? <Eye /> : <EyeOff />}
       </Button>
       <ul>
         {layers.map((layer) => (
