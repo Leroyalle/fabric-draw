@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Button } from '@chakra-ui/react';
+import { exportFrameAsPNG, updateFrames } from './lib';
 
 interface Props {
   canvas: Canvas | null;
@@ -19,21 +20,8 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey }) 
   const [frames, setFrames] = useState<FabricObject[]>([]);
   const [selectedFrame, setSelectedFrame] = useState<FabricObject>();
 
-  const updateFrames = () => {
-    if (canvas) {
-      const framesFromCanvas = canvas
-        .getObjects('rect')
-        .filter((obj) => obj.get('name') && obj.get('name').startsWith('Frame-'));
-      setFrames(framesFromCanvas);
-
-      if (framesFromCanvas.length > 0) {
-        setSelectedFrame(framesFromCanvas[0]);
-      }
-    }
-  };
-
   useEffect(() => {
-    updateFrames();
+    updateFrames(canvas, setFrames, setSelectedFrame);
   }, [canvas, refreshKey]);
 
   const handleFrameSelect = (name: string) => {
@@ -42,45 +30,6 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey }) 
       setSelectedFrame(selected);
       if (selected) canvas.setActiveObject(selected);
       canvas.renderAll();
-    }
-  };
-
-  const exportFrameAsPNG = () => {
-    if (!selectedFrame) {
-      return undefined;
-    }
-
-    if (canvas) {
-      frames.forEach((frame) => {
-        frame.set('visible', false);
-      });
-
-      selectedFrame.set({
-        strokeWidth: 0,
-        visible: true,
-      });
-
-      const dataUrl = canvas.toDataURL({
-        left: selectedFrame.left,
-        top: selectedFrame.top,
-        width: selectedFrame.width * selectedFrame.scaleX,
-        height: selectedFrame.height * selectedFrame.scaleY,
-        format: 'png',
-        multiplier: 1,
-      });
-
-      selectedFrame.set('visible', true);
-
-      frames.forEach((frame) => {
-        frame.set('visible', true);
-      });
-
-      canvas.renderAll();
-
-      const a = document.createElement('a');
-      a.download = `${selectedFrame.get('name')}.png`;
-      a.href = dataUrl;
-      a.click();
     }
   };
 
@@ -98,7 +47,10 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey }) 
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button disabled={!selectedFrame} colorScheme="teal" onClick={exportFrameAsPNG}>
+      <Button
+        disabled={!selectedFrame}
+        colorScheme="teal"
+        onClick={() => exportFrameAsPNG(canvas, selectedFrame, frames)}>
         Export frame
       </Button>
     </div>

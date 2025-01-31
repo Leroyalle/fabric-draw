@@ -1,7 +1,16 @@
 import { Input } from '../ui/input';
 import clsx from 'clsx';
-import { Canvas, FabricObject, Circle, Rect } from 'fabric';
+import { Canvas, FabricObject } from 'fabric';
 import React, { useEffect, useState } from 'react';
+import {
+  changeObjectColor,
+  changeObjectDiameter,
+  changeObjectHeight,
+  changeObjectOpacity,
+  changeObjectWidth,
+  clearObjectSettings,
+  onObjectSelection,
+} from './lib';
 
 interface Props {
   canvas: Canvas | null;
@@ -27,7 +36,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
       });
       canvas.on('selection:cleared', function () {
         setSelectedObject(null);
-        clearSettings();
+        clearObjectSettings(setWidth, setHeight, setDiameter, setColor, setOpacity);
       });
       canvas.on('object:modified', function (event) {
         handleObjectSelection(event.target);
@@ -39,82 +48,35 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   }, [canvas]);
 
   const handleObjectSelection = (object: FabricObject) => {
-    if (!object) {
-      return null;
-    }
-    setSelectedObject(object);
-    setOpacity(object.opacity);
-
-    if (object.type === 'rect') {
-      const rect = object as Rect;
-      setWidth(Math.round(rect.width * rect.scaleX));
-      setHeight(Math.round(rect.height * rect.scaleY));
-      setColor(rect.fill?.toString() || '');
-    } else if (object.type === 'circle') {
-      const circle = object as Circle;
-      setDiameter(Math.round((circle.radius || 0) * 2 * circle.scaleX));
-      setColor(circle.fill?.toString() || '');
-      setWidth(0);
-      setHeight(0);
-    }
-  };
-  console.log(selectedObject);
-  const clearSettings = () => {
-    setWidth(0);
-    setHeight(0);
-    setDiameter(0);
-    setColor('');
-    setOpacity(1);
+    onObjectSelection(
+      object,
+      setSelectedObject,
+      setOpacity,
+      setWidth,
+      setHeight,
+      setDiameter,
+      setColor,
+    );
   };
 
   const handleWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.replace(/,/g, '');
-    const intValue = parseInt(value, 10);
-    setWidth(intValue);
-
-    if (selectedObject?.type === 'rect' && intValue >= 0) {
-      selectedObject.set({ width: intValue / selectedObject.scaleX });
-      canvas?.requestRenderAll();
-    }
+    if (canvas && selectedObject) changeObjectWidth(event, canvas, selectedObject, setWidth);
   };
+
   const handleHeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.replace(/,/g, '');
-    const intValue = parseInt(value, 10);
-    setHeight(intValue);
-
-    if (selectedObject?.type === 'rect' && intValue >= 0) {
-      selectedObject.set({ height: intValue / selectedObject.scaleY });
-      canvas?.requestRenderAll();
-    }
+    if (canvas && selectedObject) changeObjectHeight(event, canvas, selectedObject, setHeight);
   };
+
   const handleDiameterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.replace(/,/g, '');
-    const intValue = parseInt(value, 10);
-    setDiameter(intValue);
-
-    if (selectedObject?.type === 'circle' && intValue >= 0) {
-      selectedObject.set({ radius: intValue / 2 / selectedObject.scaleY });
-      canvas?.requestRenderAll();
-    }
+    if (canvas && selectedObject) changeObjectDiameter(event, canvas, selectedObject, setDiameter);
   };
+
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setColor(value);
-
-    if (selectedObject) {
-      selectedObject.set({ fill: value });
-      canvas?.requestRenderAll();
-    }
+    if (canvas && selectedObject) changeObjectColor(event, canvas, selectedObject, setColor);
   };
-  const handleOpacityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const intValue = Number(value);
-    setOpacity(intValue);
 
-    if (selectedObject) {
-      selectedObject.set({ opacity: value });
-      canvas?.requestRenderAll();
-    }
+  const handleOpacityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (canvas && selectedObject) changeObjectOpacity(event, canvas, selectedObject, setOpacity);
   };
 
   if (!selectedObject) {

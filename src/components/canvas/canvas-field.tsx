@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line } from 'fabric';
 import { CanvasSettings } from './canvas-settings';
 import { clearGuidelines, handleObjectMoving } from './lib';
-import { LayersList } from '../layers/layers-list';
+import { LayersList } from '../layers';
 import { CanvasCroppingSettings } from './canvas-cropping-settings';
 
 interface Props {

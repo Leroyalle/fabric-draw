@@ -1,10 +1,11 @@
 import { Button } from '@chakra-ui/react';
 import clsx from 'clsx';
-import { Canvas, Circle, Rect } from 'fabric';
+import { Canvas } from 'fabric';
 import { CircleIcon, SquareIcon } from 'lucide-react';
 import React, { RefObject } from 'react';
 import { CanvasVideo } from './canvas-video';
 import { CanvasCropping } from './canvas-cropping';
+import { addCircle, addRectangle } from './lib';
 
 interface Props {
   canvas: Canvas | null;
@@ -19,31 +20,6 @@ export const CanvasToolbar: React.FC<Props> = ({
   onFramesUpdate,
   className,
 }) => {
-  const addRectangle = () => {
-    if (canvas) {
-      const rect = new Rect({
-        left: 200,
-        top: 200,
-        fill: '#2ECC71',
-        width: 150,
-        height: 80,
-      });
-      canvas.add(rect);
-    }
-  };
-
-  const addCircle = () => {
-    if (canvas) {
-      const circle = new Circle({
-        left: 200,
-        top: 200,
-        fill: '#7A00E6',
-        radius: 50,
-      });
-      canvas.add(circle);
-    }
-  };
-
   return (
     <div
       className={clsx(
@@ -51,10 +27,10 @@ export const CanvasToolbar: React.FC<Props> = ({
         className,
       )}>
       <CanvasCropping canvas={canvas} onFramesUpdate={onFramesUpdate} />
-      <Button colorScheme="teal" variant="subtle" onClick={addRectangle}>
+      <Button colorScheme="teal" variant="subtle" onClick={() => addRectangle(canvas)}>
         <SquareIcon />
       </Button>
-      <Button colorScheme="teal" variant="outline" onClick={addCircle}>
+      <Button colorScheme="teal" variant="outline" onClick={() => addCircle(canvas)}>
         <CircleIcon />
       </Button>
       <CanvasVideo canvas={canvas} canvasRef={canvasRef} />

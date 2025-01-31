@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Canvas, FabricObject, TEvent, TPointerEvent } from 'fabric';
 import { ArrowBigDown, ArrowBigUp, Eye, EyeOff, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { addIdToObject, deleteLayer, hideSelectLayer, moveSelectLayer, updateLayers } from './lib';
 
 interface Props {
   canvas: Canvas | null;
@@ -15,34 +16,16 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
   const handleDeleteLayer = () => {
     if (!selectedLayer) return undefined;
     if (canvas) {
-      const findObject = canvas.getObjects().find((obj) => obj.id === selectedLayer.id);
-      if (!findObject) return undefined;
-      canvas.remove(findObject);
-      canvas.renderAll();
-      updateLayers();
+      deleteLayer(canvas, selectedLayer);
+      handleUpdateLayers();
     }
   };
 
-  const hideSelectLayer = () => {
+  const handleHideSelectLayer = () => {
     if (!selectedLayer) return undefined;
-
     if (canvas) {
-      const findObject = canvas.getObjects().find((obj) => obj.id === selectedLayer.id);
-      if (!findObject) return undefined;
-      if (findObject.get('opacity') === 0) {
-        findObject.set({ opacity: 1 });
-      } else {
-        findObject.set({ opacity: 0 });
-      }
-      canvas.renderAll();
-      updateLayers();
-    }
-  };
-
-  const addIdToObject = (object: FabricObject) => {
-    if (!object.id) {
-      const timestamp = new Date().getTime();
-      object.id = `${object.type}-${timestamp}`;
+      hideSelectLayer(canvas, selectedLayer);
+      handleUpdateLayers();
     }
   };
 
@@ -65,19 +48,19 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
 
   useEffect(() => {
     if (canvas) {
-      canvas.on('object:added', updateLayers);
-      canvas.on('object:removed', updateLayers);
-      canvas.on('object:modified', updateLayers);
+      canvas.on('object:added', handleUpdateLayers);
+      canvas.on('object:removed', handleUpdateLayers);
+      canvas.on('object:modified', handleUpdateLayers);
 
       canvas.on('selection:created', handleObjectSelect);
       canvas.on('selection:updated', handleObjectSelect);
       canvas.on('selection:cleared', () => setSelectedLayer(null));
 
-      updateLayers();
+      handleUpdateLayers();
       return () => {
-        canvas.off('object:added', updateLayers);
-        canvas.off('object:removed', updateLayers);
-        canvas.off('object:modified', updateLayers);
+        canvas.off('object:added', handleUpdateLayers);
+        canvas.off('object:removed', handleUpdateLayers);
+        canvas.off('object:modified', handleUpdateLayers);
         canvas.off('selection:created', handleObjectSelect);
         canvas.off('selection:updated', handleObjectSelect);
         canvas.off('selection:cleared', () => setSelectedLayer(null));
@@ -85,56 +68,20 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
     }
   }, [canvas]);
 
-  const updateLayers = () => {
+  const handleUpdateLayers = () => {
     if (canvas) {
-      canvas.updateZIndexes();
-      const objects = canvas
-        .getObjects()
-        .filter(
-          (obj) =>
-            !(obj.get('id').startsWith('horizontal-') || obj.get('id').startsWith('vertical-')),
-        )
-        .map((obj) => ({
-          id: obj.id,
-          zIndex: obj.zIndex,
-          type: obj.type,
-          opacity: obj.opacity,
-        }));
-
-      setLayers([...objects].reverse());
+      updateLayers(canvas, setLayers);
     }
   };
 
-  const moveSelectLayer = (direction: 'up' | 'down') => {
-    if (!selectedLayer) {
-      return undefined;
-    }
-
+  const handleMoveSelectLayer = (direction: 'up' | 'down') => {
+    if (!selectedLayer) return undefined;
     if (canvas) {
       const objects = canvas.getObjects();
       const object = objects.find((obj) => obj.id === selectedLayer.id);
-
       if (object) {
-        const currentIndex = objects.indexOf(object);
-
-        if (direction === 'up' && currentIndex < objects.length - 1) {
-          const temp = objects[currentIndex];
-          objects[currentIndex] = objects[currentIndex + 1];
-          objects[currentIndex + 1] = temp;
-        } else if (direction === 'down' && currentIndex > 0) {
-          const temp = objects[currentIndex];
-          objects[currentIndex] = objects[currentIndex - 1];
-          objects[currentIndex - 1] = temp;
-        }
-
-        const bgColor = canvas.backgroundColor;
-        canvas.clear();
-        objects.forEach((obj) => canvas.add(obj));
-        canvas.backgroundColor = bgColor;
-        canvas.renderAll();
-        setSelectedLayer(object);
-        canvas.setActiveObject(selectedLayer);
-        updateLayers();
+        moveSelectLayer(canvas, selectedLayer, setSelectedLayer, objects, object, direction);
+        handleUpdateLayers();
       }
     }
   };
@@ -159,16 +106,16 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
       <div>
         {' '}
         <Button
-          onClick={() => moveSelectLayer('up')}
+          onClick={() => handleMoveSelectLayer('up')}
           disabled={!selectedLayer || layers[0].id === selectedLayer.id}>
           <ArrowBigUp />
         </Button>
         <Button
-          onClick={() => moveSelectLayer('down')}
+          onClick={() => handleMoveSelectLayer('down')}
           disabled={!selectedLayer || layers[layers.length - 1].id === selectedLayer.id}>
           <ArrowBigDown />
         </Button>
-        <Button disabled={!selectedLayer} onClick={() => hideSelectLayer()}>
+        <Button disabled={!selectedLayer} onClick={() => handleHideSelectLayer()}>
           {selectedLayer?.opacity === 0 ? <Eye /> : <EyeOff />}
         </Button>
         <Button disabled={!selectedLayer} onClick={() => handleDeleteLayer()}>
