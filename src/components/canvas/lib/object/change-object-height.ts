@@ -10,8 +10,8 @@ export const changeObjectHeight = (
   const intValue = parseInt(value, 10);
   setHeight(intValue);
 
-  if (selectedObject?.type === 'rect' && intValue >= 0) {
+  if (selectedObject.type === 'rect' && intValue >= 0) {
     selectedObject.set({ height: intValue / selectedObject.scaleY });
-    canvas?.requestRenderAll();
+    canvas.requestRenderAll();
   }
 };

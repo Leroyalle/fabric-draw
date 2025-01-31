@@ -1,4 +1,3 @@
-import { Input } from '../ui/input';
 import clsx from 'clsx';
 import { Canvas, FabricObject } from 'fabric';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +10,7 @@ import {
   clearObjectSettings,
   onObjectSelection,
 } from './lib';
+import { Input } from '../ui/input';
 
 interface Props {
   canvas: Canvas | null;
@@ -23,8 +23,9 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
   const [height, setHeight] = useState(0);
   const [diameter, setDiameter] = useState(0);
   const [color, setColor] = useState<string>('');
-  const [opacity, setOpacity] = useState(1);
+  const [opacity, setOpacity] = useState(100);
 
+  console.log(opacity);
   useEffect(() => {
     if (canvas) {
       canvas.on('selection:created', function (event) {
@@ -117,7 +118,7 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
       <Input
         className="bg-white text-black p-2"
         type="number"
-        placeholder="1"
+        placeholder="100"
         value={opacity}
         onChange={handleOpacityChange}
       />

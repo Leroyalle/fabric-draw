@@ -7,11 +7,8 @@ export const changeObjectOpacity = (
   setOpacity: (opacity: number) => void,
 ) => {
   const value = event.target.value;
-  const intValue = Number(value);
+  const intValue = Number(value) > 100 ? 100 : Number(value);
   setOpacity(intValue);
-
-  if (selectedObject) {
-    selectedObject.set({ opacity: value });
-    canvas?.requestRenderAll();
-  }
+  selectedObject.set({ opacity: intValue * 0.01 });
+  canvas.requestRenderAll();
 };

@@ -13,7 +13,7 @@ export const onObjectSelection = (
     return null;
   }
   setSelectedObject(object);
-  setOpacity(object.opacity);
+  setOpacity(Math.round(object.opacity * 100));
 
   if (object.type === 'rect') {
     const rect = object as Rect;

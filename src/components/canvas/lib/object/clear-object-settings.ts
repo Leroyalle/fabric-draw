@@ -9,5 +9,5 @@ export const clearObjectSettings = (
   setHeight(0);
   setDiameter(0);
   setColor('');
-  setOpacity(1);
+  setOpacity(100);
 };

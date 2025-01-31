@@ -9,8 +9,6 @@ export const changeObjectColor = (
   const value = event.target.value;
   setColor(value);
 
-  if (selectedObject) {
-    selectedObject.set({ fill: value });
-    canvas?.requestRenderAll();
-  }
+  selectedObject.set({ fill: value });
+  canvas.requestRenderAll();
 };

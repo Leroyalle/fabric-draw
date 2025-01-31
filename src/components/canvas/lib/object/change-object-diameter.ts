@@ -12,6 +12,6 @@ export const changeObjectDiameter = (
 
   if (selectedObject?.type === 'circle' && intValue >= 0) {
     selectedObject.set({ radius: intValue / 2 / selectedObject.scaleY });
-    canvas?.requestRenderAll();
+    canvas.requestRenderAll();
   }
 };
