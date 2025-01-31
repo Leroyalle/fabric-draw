@@ -11,6 +11,7 @@ import {
   onObjectSelection,
 } from './lib';
 import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 interface Props {
   canvas: Canvas | null;
@@ -89,39 +90,73 @@ export const CanvasObjectSettings: React.FC<Props> = ({ canvas, className }) => 
       <h2 className="font-semibold">Object settings</h2>
       {selectedObject.type === 'rect' && (
         <>
-          <Input
+          {/* <Input
             className="bg-white text-black p-2"
             type="number"
             value={width}
             onChange={handleWidthChange}
-          />
-          <Input
-            className="bg-white text-black p-2"
-            type="number"
-            value={height}
-            onChange={handleHeightChange}
-          />
+          /> */}
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="width">Width</Label>
+            <Input
+              className="bg-white text-black p-2"
+              type="number"
+              id="width"
+              placeholder="Width"
+              value={width}
+              onChange={handleWidthChange}
+            />
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="height">Height</Label>
+            <Input
+              className="bg-white text-black p-2"
+              type="number"
+              id="height"
+              placeholder="Height"
+              value={height}
+              onChange={handleHeightChange}
+            />
+          </div>
         </>
       )}
       {selectedObject.type === 'circle' && (
         <>
-          <Input
-            className="bg-white text-black p-2"
-            type="number"
-            placeholder="#FFFFFF"
-            value={diameter}
-            onChange={handleDiameterChange}
-          />
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="diameter">Size</Label>
+            <Input
+              className="bg-white text-black p-2"
+              type="number"
+              id="diameter"
+              placeholder="Size"
+              value={diameter}
+              onChange={handleDiameterChange}
+            />
+          </div>
         </>
       )}
-      <Input value={color} type="color" onChange={handleColorChange} />
-      <Input
-        className="bg-white text-black p-2"
-        type="number"
-        placeholder="100"
-        value={opacity}
-        onChange={handleOpacityChange}
-      />
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="color">Color</Label>
+        <Input
+          className="bg-white text-black p-2"
+          id="color"
+          placeholder="Color"
+          value={color}
+          type="color"
+          onChange={handleColorChange}
+        />
+      </div>
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="opacity">Opacity</Label>
+        <Input
+          className="bg-white text-black p-2"
+          id="opacity"
+          type="number"
+          placeholder="100"
+          value={opacity}
+          onChange={handleOpacityChange}
+        />
+      </div>
     </div>
   );
 };

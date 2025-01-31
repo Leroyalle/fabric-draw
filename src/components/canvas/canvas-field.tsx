@@ -52,11 +52,11 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
         <CanvasToolbar canvas={canvas} canvasRef={canvasRef} onFramesUpdate={handleFramesUpdate} />
       </div>
       <canvas id="canvas" ref={canvasRef} />
-      <div className="flex flex-col gap-y-3 fixed right-4 top-1/2 -translate-y-1/2 max-w-[200px]">
-        <CanvasObjectSettings canvas={canvas} />
+      <div className="grid [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))] gap-3 fixed right-4 top-1/2 -translate-y-1/2 max-w-[400px]">
         <CanvasSettings canvas={canvas} />
-        <CanvasCroppingSettings canvas={canvas} refreshKey={refreshKey} />
         <LayersList canvas={canvas} />
+        <CanvasObjectSettings canvas={canvas} />
+        <CanvasCroppingSettings canvas={canvas} refreshKey={refreshKey} />
       </div>
     </div>
   );

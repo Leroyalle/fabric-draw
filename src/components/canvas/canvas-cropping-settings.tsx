@@ -33,8 +33,9 @@ export const CanvasCroppingSettings: React.FC<Props> = ({ canvas, refreshKey }) 
     }
   };
 
+  if (frames.length === 0) return null;
   return (
-    <div className="p-2 rounded-xl bg-gray-800 text-white">
+    <div className="p-2 rounded-xl bg-gray-800 text-white h-fit">
       <Select value={selectedFrame?.get('name') || ''} onValueChange={handleFrameSelect}>
         <SelectTrigger className="w-[180px] text-black">
           <SelectValue placeholder="Select a frame" />
