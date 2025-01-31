@@ -48,7 +48,9 @@ export const CanvasField: React.FC<Props> = ({ className }) => {
 
   return (
     <div className={className}>
-      <CanvasToolbar canvas={canvas} canvasRef={canvasRef} onFramesUpdate={handleFramesUpdate} />
+      <div className="fixed top-1/2 left-4 -translate-y-1/2">
+        <CanvasToolbar canvas={canvas} canvasRef={canvasRef} onFramesUpdate={handleFramesUpdate} />
+      </div>
       <canvas id="canvas" ref={canvasRef} />
       <div className="flex flex-col gap-y-3 fixed right-4 top-1/2 -translate-y-1/2 max-w-[200px]">
         <CanvasObjectSettings canvas={canvas} />

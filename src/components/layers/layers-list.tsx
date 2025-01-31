@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import clsx from 'clsx';
 import { Canvas, FabricObject, TEvent, TPointerEvent } from 'fabric';
+import { ArrowBigDown, ArrowBigUp } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
@@ -20,29 +21,10 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
 
   Canvas.prototype.updateZIndexes = function () {
     const objects = this.getObjects();
-    objects.forEach((o, i) => {
-      addIdToObject(o);
-      o.zIndex = i;
+    objects.forEach((obj, index) => {
+      addIdToObject(obj);
+      obj.zIndex = index;
     });
-  };
-
-  const updateLayers = () => {
-    if (canvas) {
-      canvas.updateZIndexes();
-      const objects = canvas
-        .getObjects()
-        .filter(
-          (obj) =>
-            !(obj.get('id').startsWith('horizontal-') || obj.get('id').startsWith('vertical-')),
-        )
-        .map((obj) => ({
-          id: obj.id,
-          zIndex: obj.zIndex,
-          type: obj.type,
-        }));
-
-      setLayers([...objects].reverse());
-    }
   };
 
   const handleObjectSelect = (e: Partial<TEvent<TPointerEvent>> & { selected: FabricObject[] }) => {
@@ -51,16 +33,6 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
       setSelectedLayer(targetObject);
     } else {
       setSelectedLayer(null);
-    }
-  };
-
-  const selectLayerOnCanvas = (layerId: string) => {
-    if (canvas) {
-      const object = canvas.getObjects().find((obj) => obj.id === layerId);
-      if (object) {
-        canvas.setActiveObject(object);
-        canvas.renderAll();
-      }
     }
   };
 
@@ -86,6 +58,73 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
     }
   }, [canvas]);
 
+  const updateLayers = () => {
+    if (canvas) {
+      canvas.updateZIndexes();
+      const objects = canvas
+        .getObjects()
+        .filter(
+          (obj) =>
+            !(obj.get('id').startsWith('horizontal-') || obj.get('id').startsWith('vertical-')),
+        )
+        .map((obj) => ({
+          id: obj.id,
+          zIndex: obj.zIndex,
+          type: obj.type,
+        }));
+
+      setLayers([...objects].reverse());
+      console.log(objects);
+    }
+  };
+
+  const moveSelectLayer = (direction: 'up' | 'down') => {
+    if (!selectedLayer) {
+      return undefined;
+    }
+
+    if (canvas) {
+      const objects = canvas.getObjects();
+      const object = objects.find((obj) => obj.id === selectedLayer.id);
+
+      if (object) {
+        const currentIndex = objects.indexOf(object);
+
+        if (direction === 'up' && currentIndex < objects.length - 1) {
+          const temp = objects[currentIndex];
+          objects[currentIndex] = objects[currentIndex + 1];
+          objects[currentIndex + 1] = temp;
+        } else if (direction === 'down' && currentIndex > 0) {
+          const temp = objects[currentIndex];
+          objects[currentIndex] = objects[currentIndex - 1];
+          objects[currentIndex - 1] = temp;
+        }
+
+        const bgColor = canvas.backgroundColor;
+
+        canvas.clear();
+
+        objects.forEach((obj) => canvas.add(obj));
+
+        canvas.backgroundColor = bgColor;
+
+        canvas.renderAll();
+        canvas.setActiveObject(object);
+        updateLayers();
+      }
+    }
+  };
+
+  const selectLayerOnCanvas = (layerId: string) => {
+    if (canvas) {
+      const object = canvas.getObjects().find((obj) => obj.id === layerId);
+      if (object) {
+        canvas.setActiveObject(object);
+        canvas.renderAll();
+      }
+    }
+  };
+
   if (layers.length === 0) {
     return null;
   }
@@ -93,6 +132,12 @@ export const LayersList: React.FC<Props> = ({ canvas }) => {
   return (
     <div className="bg-gray-800 text-white p-2 rounded-xl">
       <h2 className="font-semibold">Layers</h2>
+      <Button onClick={() => moveSelectLayer('up')}>
+        <ArrowBigUp />
+      </Button>
+      <Button onClick={() => moveSelectLayer('down')}>
+        <ArrowBigDown />
+      </Button>
       <ul>
         {layers.map((layer) => (
           <li key={layer.id}>
